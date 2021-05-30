@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 5000;
 
 //Import Route
 const authRoute = require("./routes/auth");
+const taskRoute = require("./routes/task");
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use(
 
 //Route Middleware
 app.use("/user", authRoute);
+app.use("/task", taskRoute);
 
 //Server
 app.listen(PORT, () => console.log(`Server is up on port ${PORT}.`));

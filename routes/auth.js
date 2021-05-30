@@ -1,6 +1,5 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const passport = require("passport");
 const router = express.Router();
 const User = require("../models/User");
 const { registerValidation, loginValidation } = require("../lib/validation");
@@ -120,36 +119,5 @@ router.get("/csrf-token", (req, res) => {
     csrfToken: req.csrfToken(),
   });
 });
-
-const attachUser = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ message: "Authentication invalid" });
-  }
-  const decodedToken = jwtDecode(token);
-
-  if (!decodedToken) {
-    return res.status(401).json({
-      message: "There was a problem authorizing the request",
-    });
-  } else {
-    req.user = decodedToken;
-    next();
-  }
-};
-
-router.use(attachUser);
-
-router.get(
-  "/protected",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    res.status(200).json({
-      success: true,
-      msg: "You are successfully authenticated to this route!",
-      user: req.user,
-    });
-  }
-);
 
 module.exports = router;
