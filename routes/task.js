@@ -85,7 +85,7 @@ router.get(
 
 //Update a task
 router.put(
-  "/update",
+  "/updateDescription",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
@@ -94,8 +94,6 @@ router.put(
         { _id: req.body.id },
         {
           description: req.body.description,
-          completed: req.body.completed,
-          time: req.body.time,
         }
       );
 
@@ -119,8 +117,6 @@ router.post(
   async (req, res) => {
     try {
       const userId = req.userId;
-
-      console.log(req.body.id);
 
       //Delete the task
       await Task.findOneAndDelete({ _id: req.body.id });
