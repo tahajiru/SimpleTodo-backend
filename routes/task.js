@@ -113,12 +113,14 @@ router.put(
 );
 
 //Delete a task
-router.delete(
+router.post(
   "/delete",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
       const userId = req.userId;
+
+      console.log(req.body.id);
 
       //Delete the task
       await Task.findOneAndDelete({ _id: req.body.id });
