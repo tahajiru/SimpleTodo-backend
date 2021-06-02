@@ -49,6 +49,7 @@ router.post(
       res.status(200).json({
         success: true,
         message: "Task added",
+        task: task,
       });
     } catch (err) {
       res.status(500).json({
