@@ -83,17 +83,44 @@ router.get(
   }
 );
 
-//Update a task
+//Update task description
 router.put(
   "/updateDescription",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      //Update task
+      //Update task description
       await Task.findOneAndUpdate(
         { _id: req.body.id },
         {
           description: req.body.description,
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Task updated",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+//Update task completion
+router.put(
+  "/updateCompletion",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      //Update task completion
+      await Task.findOneAndUpdate(
+        { _id: req.body.id },
+        {
+          completed: req.body.completed,
         }
       );
 
