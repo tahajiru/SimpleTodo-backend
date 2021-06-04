@@ -151,12 +151,50 @@ router.post(
       //Remove the  task from user
       await User.findOneAndUpdate(
         { _id: userId },
-        { $pull: { tasks: { _id: req.body.id } } }
+        { $pull: { tasks: req.body.id } }
       );
 
       res.status(200).json({
         success: true,
         message: "Task deleted",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+router.put(
+  "/reorder",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const userId = req.userId;
+    try {
+      //Remove the task
+      await User.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { tasks: req.body.id } }
+      );
+
+      //Add the task to proper position
+      await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            tasks: {
+              $each: [req.body.id],
+              $position: req.body.position,
+            },
+          },
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Task updated",
       });
     } catch (err) {
       res.status(500).json({
