@@ -167,6 +167,7 @@ router.post(
   }
 );
 
+//reorder task
 router.put(
   "/reorder",
   passport.authenticate("jwt", { session: false }),
@@ -195,6 +196,50 @@ router.put(
       res.status(200).json({
         success: true,
         message: "Task updated",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+//undo a deleted task
+router.post(
+  "/undoDelete",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const userId = req.userId;
+
+      //Create a new task
+      const task = new Task({
+        description: req.body.description,
+        completed: req.body.completed,
+        time: req.body.time,
+      });
+
+      await task.save();
+
+      //Add the task to proper position
+      await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            tasks: {
+              $each: [task._id],
+              $position: req.body.position,
+            },
+          },
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Undo Successful",
+        task: task,
       });
     } catch (err) {
       res.status(500).json({
