@@ -97,6 +97,7 @@ router.post("/login", async (req, res) => {
   res.cookie("token", tokenObject.token, {
     httpOnly: true,
     domain: process.env.COOKIE_DOMAIN,
+    maxAge: expiresAt,
   });
 
   res.status(200).json({
