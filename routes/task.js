@@ -1,28 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const jwtDecode = require("jwt-decode");
-const User = require("../models/User");
 const Task = require("../models/Task");
-
-const attachUser = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(401).json({ message: "Authentication invalid" });
-  }
-  const decodedToken = jwtDecode(token);
-
-  if (!decodedToken) {
-    return res.status(401).json({
-      message: "There was a problem authorizing the request",
-    });
-  } else {
-    req.userId = decodedToken.sub;
-    next();
-  }
-};
-
-router.use(attachUser);
+const List = require("../models/List");
 
 //Add Task
 router.post(
@@ -30,26 +10,22 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const userId = req.userId;
-
       //Create a new task
       const task = new Task({
         description: req.body.description,
         completed: req.body.completed,
-        time: req.body.time,
       });
 
       await task.save();
 
-      await User.findOneAndUpdate(
-        { _id: userId },
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
         { $push: { tasks: { _id: task._id } } }
       );
 
       res.status(200).json({
         success: true,
         message: "Task added",
-        task: task,
       });
     } catch (err) {
       res.status(500).json({
@@ -66,13 +42,13 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const userId = req.userId;
-
-      const user = await User.findOne({ _id: userId }).populate("tasks");
+      const list = await List.findOne({ _id: req.body.listId }).populate(
+        "tasks"
+      );
 
       res.status(200).json({
         success: true,
-        tasks: user.tasks,
+        tasks: list.tasks,
       });
     } catch (err) {
       res.status(500).json({
@@ -91,7 +67,7 @@ router.put(
     try {
       //Update task description
       await Task.findOneAndUpdate(
-        { _id: req.body.id },
+        { _id: req.body.taskId },
         {
           description: req.body.description,
         }
@@ -118,7 +94,7 @@ router.put(
     try {
       //Update task completion
       await Task.findOneAndUpdate(
-        { _id: req.body.id },
+        { _id: req.body.taskId },
         {
           completed: req.body.completed,
         }
@@ -143,15 +119,13 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const userId = req.userId;
-
       //Delete the task
-      await Task.findOneAndDelete({ _id: req.body.id });
+      await Task.findOneAndDelete({ _id: req.body.taskId });
 
-      //Remove the  task from user
-      await User.findOneAndUpdate(
-        { _id: userId },
-        { $pull: { tasks: req.body.id } }
+      //Remove the  task from list
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
+        { $pull: { tasks: req.body.taskId } }
       );
 
       res.status(200).json({
@@ -172,21 +146,20 @@ router.put(
   "/reorder",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
-    const userId = req.userId;
     try {
       //Remove the task
-      await User.findOneAndUpdate(
-        { _id: userId },
-        { $pull: { tasks: req.body.id } }
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
+        { $pull: { tasks: req.body.taskId } }
       );
 
       //Add the task to proper position
-      await User.findOneAndUpdate(
-        { _id: userId },
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
         {
           $push: {
             tasks: {
-              $each: [req.body.id],
+              $each: [req.body.taskId],
               $position: req.body.position,
             },
           },
@@ -195,7 +168,7 @@ router.put(
 
       res.status(200).json({
         success: true,
-        message: "Task updated",
+        message: "Task position updated",
       });
     } catch (err) {
       res.status(500).json({
@@ -212,20 +185,17 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
-      const userId = req.userId;
-
       //Create a new task
       const task = new Task({
         description: req.body.description,
         completed: req.body.completed,
-        time: req.body.time,
       });
 
       await task.save();
 
       //Add the task to proper position
-      await User.findOneAndUpdate(
-        { _id: userId },
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
         {
           $push: {
             tasks: {

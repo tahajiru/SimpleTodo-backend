@@ -7,7 +7,8 @@ const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 5000;
 
 //Import Route
-const authRoute = require("./routes/auth");
+const userRoute = require("./routes/user");
+const listRoute = require("./routes/list");
 const taskRoute = require("./routes/task");
 
 const app = express();
@@ -39,7 +40,8 @@ app.use(
 );
 
 //Route Middleware
-app.use("/user", authRoute);
+app.use("/user", userRoute);
+app.use("/list", listRoute);
 app.use("/task", taskRoute);
 
 //Server

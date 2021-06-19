@@ -18,10 +18,10 @@ const userSchema = mongoose.Schema({
     required: true,
   },
   date: { type: Date, default: Date.now },
-  tasks: [
+  lists: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Task",
+      ref: "List",
     },
   ],
 });
