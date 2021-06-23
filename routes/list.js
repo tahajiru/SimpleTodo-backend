@@ -4,6 +4,7 @@ const passport = require("passport");
 const jwtDecode = require("jwt-decode");
 const User = require("../models/User");
 const List = require("../models/List");
+const { model } = require("mongoose");
 
 const attachUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -32,7 +33,12 @@ router.get(
     try {
       const userId = req.userId;
 
-      const user = await User.findOne({ _id: userId }).populate("lists");
+      const user = await User.findOne({ _id: userId }).populate({
+        path: "lists",
+        populate: {
+          path: "tasks",
+        },
+      });
 
       res.status(200).json({
         success: true,
