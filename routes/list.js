@@ -76,6 +76,7 @@ router.post(
       res.status(200).json({
         success: true,
         message: "List added",
+        list: list
       });
     } catch (err) {
       res.status(500).json({
