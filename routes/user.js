@@ -26,8 +26,10 @@ router.post("/register", async (req, res) => {
     });
   }
 
+  const email = req.body.email.toLowerCase();
+
   //Checking if email exists
-  const emailExists = await User.findOne({ email: req.body.email });
+  const emailExists = await User.findOne({ email });
   if (emailExists) {
     return res.status(400).json({
       success: false,
@@ -72,8 +74,10 @@ router.post("/login", async (req, res) => {
     });
   }
 
+  const email = req.body.email.toLowerCase();
+
   //Checking if doesn't email exists
-  const user = await User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: email });
   if (!user) {
     return res.status(400).json({
       success: false,
