@@ -101,6 +101,25 @@ router.put(
         }
       );
 
+      //Remove the task
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
+        { $pull: { tasks: req.body.taskId } }
+      );
+
+      //Add the task to proper position
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
+        {
+          $push: {
+            tasks: {
+              $each: [req.body.taskId],
+              $position: req.body.position,
+            },
+          },
+        }
+      );
+
       res.status(200).json({
         success: true,
         message: "Task updated",
