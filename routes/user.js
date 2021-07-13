@@ -8,6 +8,7 @@ const {
   registerValidation,
   loginValidation,
   forgotPasswordValidation,
+  resetPasswordValidation,
 } = require("../lib/validation");
 const { issueJWT } = require("../lib/utils");
 const jwtDecode = require("jwt-decode");
@@ -100,7 +101,7 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  const tokenObject = issueJWT(user, env.process.JWT_SECRET_KEY);
+  const tokenObject = issueJWT(user, process.env.JWT_SECRET_KEY);
   decodedToken = jwtDecode(tokenObject.token);
   const expiresAt = decodedToken.exp;
 
@@ -169,7 +170,7 @@ router.post("/validateResetLink", async (req, res) => {
   if (!user) {
     return res.status(400).json({
       success: false,
-      message: "id not found",
+      message: "Invalid reset link.",
     });
   }
 
@@ -183,7 +184,7 @@ router.post("/validateResetLink", async (req, res) => {
   } catch (e) {
     return res.status(400).json({
       success: false,
-      message: "Not a valid reset link.",
+      message: "Invalid reset link.",
     });
   }
 });
@@ -191,29 +192,41 @@ router.post("/validateResetLink", async (req, res) => {
 //Reset Password
 router.post("/resetPassword", async (req, res) => {
   //Validation
-  // const { error } = forgotPasswordValidation(req.body);
-  // if (error) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: error.details[0].message,
-  //   });
-  // }
-
-  const id = "wda";
-  //Check if user id exists
-  const user = await User.findOne({ _id: id });
-  if (!user) {
+  const { error } = resetPasswordValidation(req.body);
+  if (error) {
     return res.status(400).json({
       success: false,
-      message: "This email is not registered",
+      message: error.details[0].message,
     });
   }
 
-  const secret = process.env.JWT_SECRET_KEY + user.password;
+  const { id, password } = req.body;
+
+  const user = await User.findOne({ _id: id });
+
+  //Hash Password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  //Update Password
   try {
-    const payload = jwt.verify(token, secret);
-    //Update new password
-  } catch (e) {}
+    await User.findOneAndUpdate(
+      { _id: user._id },
+      {
+        password: hashedPassword,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (e) {
+    return res.status(200).json({
+      success: true,
+      message: "Something went wrong. Please try again.",
+    });
+  }
 });
 
 router.use(csrfProtection);
