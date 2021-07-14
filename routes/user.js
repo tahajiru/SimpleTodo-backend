@@ -10,7 +10,7 @@ const {
   forgotPasswordValidation,
   resetPasswordValidation,
 } = require("../lib/validation");
-const { issueJWT } = require("../lib/utils");
+const { issueJWT, sendEmail } = require("../lib/utils");
 const jwtDecode = require("jwt-decode");
 
 //csrf
@@ -152,7 +152,27 @@ router.post("/forgotPassword", async (req, res) => {
   const token = issueJWT(user, secret_key).token;
   const link = `${process.env.FRONTEND_URL}/reset-password/${user.id}/${token}`;
 
+  const emailSubject = "Reset your password";
+
+  const emailMessage = `
+  <center>
+  <h1>Password Reset Instructions</h1>
+  <p>
+    It looks like you forgot your password. You can choose a new one by clicking
+    the button below:
+  </p>
+  <div style="text-align: center;">
+    <button style="background-color: purple; color: white; padding: 8px 16px;">
+      <a href="${link}" style="text-decoration:none;  color: white;">
+        Change my password
+      </a>
+    </button>
+  </div>
+</center>
+  `;
+
   //TODO: Send mail
+  sendEmail(user.email, emailSubject, emailMessage);
   console.log(link);
 
   return res.status(400).json({
