@@ -171,9 +171,8 @@ router.post("/forgotPassword", async (req, res) => {
 </center>
   `;
 
-  //TODO: Send mail
+  //Send mail
   sendEmail(user.email, emailSubject, emailMessage);
-  console.log(link);
 
   return res.status(400).json({
     success: true,
