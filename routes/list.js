@@ -76,7 +76,7 @@ router.post(
       res.status(200).json({
         success: true,
         message: "List added",
-        list: list
+        list: list,
       });
     } catch (err) {
       res.status(500).json({
@@ -136,6 +136,45 @@ router.post(
       res.status(200).json({
         success: true,
         message: "list deleted",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+//reorder list
+router.put(
+  "/reorder",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const userId = req.userId;
+    try {
+      //Remove the List
+      await User.findOneAndUpdate(
+        { _id: userId },
+        { $pull: { lists: req.body.listId } }
+      );
+
+      //Add the list to proper position
+      await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            lists: {
+              $each: [req.body.listId],
+              $position: req.body.position,
+            },
+          },
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "List position updated",
       });
     } catch (err) {
       res.status(500).json({
