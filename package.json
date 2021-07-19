@@ -17,6 +17,7 @@
     "csurf": "^1.11.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "is-url": "^1.2.4",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
@@ -24,7 +25,8 @@
     "mongoose": "^5.12.3",
     "nodemailer": "^6.6.2",
     "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0"
+    "passport-jwt": "^4.0.0",
+    "url-to-title": "^1.0.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

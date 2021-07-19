@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require("passport");
 const Task = require("../models/Task");
 const List = require("../models/List");
+const { sanitizeText } = require("../lib/utils");
 
 //Add Task
 router.post(
@@ -10,9 +11,11 @@ router.post(
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
+      const description = await sanitizeText(req.body.description);
+
       //Create a new task
       const task = new Task({
-        description: req.body.description,
+        description: description,
         completed: req.body.completed,
       });
 
