@@ -43,6 +43,7 @@ router.get(
       res.status(200).json({
         success: true,
         lists: user.lists,
+        currentList: user.currentList ? user.currentList : null,
       });
     } catch (err) {
       res.status(500).json({
@@ -175,6 +176,34 @@ router.put(
       res.status(200).json({
         success: true,
         message: "List position updated",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+//Update Currentlist
+router.put(
+  "/updateCurrentList",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    const userId = req.userId;
+    try {
+      //Update the Current List
+      await User.findOneAndUpdate(
+        { _id: userId },
+        {
+          currentList: req.body.listId,
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Current List updated",
       });
     } catch (err) {
       res.status(500).json({
