@@ -4,6 +4,7 @@ const passport = require("passport");
 const jwtDecode = require("jwt-decode");
 const User = require("../models/User");
 const List = require("../models/List");
+const Task = require("../models/Task");
 const { model } = require("mongoose");
 
 const attachUser = (req, res, next) => {
@@ -123,7 +124,13 @@ router.post(
     try {
       const userId = req.userId;
 
-      //TODO: Remove all the tasks from list
+      //Remove all the tasks from list
+      const list = await List.findOne({ _id: req.body.listId });
+
+      list.tasks.forEach(async (task) => {
+        //Delete the task
+        await Task.findOneAndDelete({ _id: task });
+      });
 
       //Delete the list
       await List.findOneAndDelete({ _id: req.body.listId });
