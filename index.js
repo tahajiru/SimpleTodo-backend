@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const passport = require("passport");
 const cookieParser = require("cookie-parser");
+const app = express();
+var server = require("http").createServer(app);
 
 const PORT = process.env.PORT || 5000;
 
@@ -10,8 +12,6 @@ const PORT = process.env.PORT || 5000;
 const userRoute = require("./routes/user");
 const listRoute = require("./routes/list");
 const taskRoute = require("./routes/task");
-
-const app = express();
 
 //Setup dotenv to access variables set in .env file
 dotenv.config();
@@ -24,6 +24,9 @@ require("./config/passport")(passport);
 
 // This will initialize the passport object on every request
 app.use(passport.initialize());
+
+// Socket
+require("./config/socket")(server);
 
 //Middlewares
 app.use(express.json());
@@ -44,5 +47,5 @@ app.use("/user", userRoute);
 app.use("/list", listRoute);
 app.use("/task", taskRoute);
 
-//Server
-app.listen(PORT, () => console.log(`Server is up on port ${PORT}.`));
+//HTTP Server
+server.listen(PORT, () => console.log(`Server is up on port ${PORT}.`));

@@ -26,6 +26,7 @@
     "nodemailer": "^6.6.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "socket.io": "^4.1.3",
     "url-to-title": "^1.0.6"
   },
   "devDependencies": {
