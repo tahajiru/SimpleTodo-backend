@@ -5,7 +5,6 @@ const jwtDecode = require("jwt-decode");
 const User = require("../models/User");
 const List = require("../models/List");
 const Task = require("../models/Task");
-const { model } = require("mongoose");
 
 const attachUser = (req, res, next) => {
   const token = req.cookies.token;
@@ -39,6 +38,13 @@ router.get(
         populate: {
           path: "tasks",
         },
+        populate: {
+          path: "collabrators",
+          populate: {
+            path: "collabrator",
+            select: ["firstName", "lastName", "email"],
+          },
+        },
       });
 
       res.status(200).json({
@@ -47,6 +53,7 @@ router.get(
         currentList: user.currentList ? user.currentList : null,
       });
     } catch (err) {
+      console.log(err);
       res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again.",

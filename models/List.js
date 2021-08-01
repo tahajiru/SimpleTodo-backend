@@ -12,6 +12,17 @@ const listSchema = mongoose.Schema({
       ref: "Task",
     },
   ],
+
+  collabrators: [
+    {
+      collabrator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      status: { type: String, default: "pending" },
+    },
+  ],
 });
 
 module.exports = mongoose.model("List", listSchema);

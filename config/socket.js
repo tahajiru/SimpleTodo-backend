@@ -20,5 +20,11 @@ module.exports = (server) => {
     socket.on("send-delete-task", (taskInfo) => {
       socket.broadcast.emit("recieve-delete-task", taskInfo);
     });
+
+    // //Add Collabrator
+    // socket.on("send-add-collabrator", (listInfo) => {
+    //   console.log(listInfo);
+    //   //socket.broadcast.emit("recieve-delete-task", taskInfo);
+    // });
   });
 };

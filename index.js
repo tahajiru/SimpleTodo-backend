@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 5000;
 const userRoute = require("./routes/user");
 const listRoute = require("./routes/list");
 const taskRoute = require("./routes/task");
-
+const collabrateRoute = require("./routes/collabrate");
+const notificationRoute = require("./routes/notification");
 //Setup dotenv to access variables set in .env file
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use(
 app.use("/user", userRoute);
 app.use("/list", listRoute);
 app.use("/task", taskRoute);
-
+app.use("/collabrate", collabrateRoute);
+app.use("/notification", notificationRoute);
 //HTTP Server
 server.listen(PORT, () => console.log(`Server is up on port ${PORT}.`));
