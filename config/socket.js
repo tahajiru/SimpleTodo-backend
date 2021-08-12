@@ -1,15 +1,10 @@
-module.exports = (server) => {
-  var io = require("socket.io")(server, {
-    cors: {
-      origin: process.env.FRONTEND_URL,
-      methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD", "DELETE"],
-    },
-    withCredentials: true,
-  });
-
+module.exports = (io) => {
   //Socket.io server
   io.on("connection", (socket) => {
-    console.log("connected");
+    //Join room
+    socket.on("join", (data) => {
+      socket.join("User:" + data.id);
+    });
 
     //Add Task
     socket.on("send-add-task", (taskInfo) => {

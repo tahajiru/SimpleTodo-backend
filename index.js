@@ -27,7 +27,15 @@ require("./config/passport")(passport);
 app.use(passport.initialize());
 
 // Socket
-require("./config/socket")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD", "DELETE"],
+  },
+  withCredentials: true,
+});
+require("./config/socket")(io);
+app.set("socketio", io);
 
 //Middlewares
 app.use(express.json());

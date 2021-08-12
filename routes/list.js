@@ -35,16 +35,19 @@ router.get(
 
       const user = await User.findOne({ _id: userId }).populate({
         path: "lists",
-        populate: {
-          path: "tasks",
-        },
-        populate: {
-          path: "collabrators",
-          populate: {
-            path: "collabrator",
-            select: ["firstName", "lastName", "email"],
+        populate: [
+          {
+            path: "tasks",
+            select: ["_id", "completed", "description"],
           },
-        },
+          {
+            path: "collabrators",
+            populate: {
+              path: "user",
+              select: ["firstName", "lastName", "email"],
+            },
+          },
+        ],
       });
 
       res.status(200).json({

@@ -15,7 +15,7 @@ const listSchema = mongoose.Schema({
 
   collabrators: [
     {
-      collabrator: {
+      user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
