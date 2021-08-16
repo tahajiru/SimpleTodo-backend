@@ -157,13 +157,28 @@ router.post(
           },
         }
       );
+      const updatedList = await List.findOne({ _id: req.body.listId }).populate(
+        [
+          {
+            path: "tasks",
+            select: ["_id", "completed", "description"],
+          },
+          {
+            path: "collabrators",
+            populate: {
+              path: "user",
+              select: ["firstName", "lastName", "email"],
+            },
+          },
+        ]
+      );
 
       //Send notification to new collabrator
       let notification = new Notification({
         type: "text",
         sender: user._id,
         receiver: user._id,
-        message: `You joined ${list.title}`,
+        message: `You joined ${updatedList.title}`,
       });
 
       //Save Notification
@@ -175,8 +190,6 @@ router.post(
         .emit("recieve-notification", { notification });
 
       //Send updated list and notification to all other collabrator
-
-      const updatedList = await List.findOne({ _id: req.body.listId });
 
       updatedList.collabrators.forEach((collabrator) => {
         if (!user._id.equals(collabrator.user._id)) {
@@ -244,7 +257,7 @@ router.post(
       //Remove user from collabrator list
       await List.findOneAndUpdate(
         { _id: req.body.listId },
-        { $pull: { collabrators: { collabrator: { _id: user._id } } } }
+        { $pull: { collabrators: { user: { _id: user._id } } } }
       );
 
       const updatedList = await List.findOne({ _id: req.body.listId }).populate(
@@ -267,6 +280,100 @@ router.post(
       res.status(200).json({
         success: true,
         message: "Invite Declined",
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
+//Invite a collabrator
+router.post(
+  "/removeCollabrator",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      const email = req.body.email.toLowerCase();
+
+      //Fetching the collabrator
+      const collabratorToBeRemoved = await User.findOne({ email: email });
+
+      //Fetching the collabrator
+      const user = await User.findOne({ _id: req.userId });
+
+      // Socket
+      const socket = req.app.get("socketio");
+
+      //Remove list from collabrator
+      await User.findOneAndUpdate(
+        { _id: collabratorToBeRemoved._id },
+        { $pull: { lists: req.body.listId } }
+      );
+
+      //Remove user from collabrator list
+      await List.findOneAndUpdate(
+        { _id: req.body.listId },
+        {
+          $pull: {
+            collabrators: { user: { _id: collabratorToBeRemoved._id } },
+          },
+        }
+      );
+
+      //Send socketio update to collabrator
+      socket
+        .to("User:" + collabratorToBeRemoved._id)
+        .emit("remove-list", { listId: req.body.listId });
+
+      //Send notification and updated list to all other collabrators
+      const updatedList = await List.findOne({ _id: req.body.listId }).populate(
+        {
+          path: "collabrators",
+          populate: {
+            path: "user",
+            select: ["firstName", "lastName", "email"],
+          },
+        }
+      );
+
+      updatedList.collabrators.forEach((collabrator) => {
+        let notification;
+        if (!user._id.equals(collabrator._id)) {
+          notification = new Notification({
+            type: "text",
+            sender: user._id,
+            receiver: collabrator.user._id,
+            message: `${user.firstName} ${user.lastName} has removed ${collabratorToBeRemoved.firstName} ${collabratorToBeRemoved.lastName} from ${updatedList.title}`,
+          });
+        } else {
+          notification = new Notification({
+            type: "text",
+            sender: user._id,
+            receiver: collabrator.user._id,
+            message: `${user.firstName} ${user.lastName} has left ${updatedList.title}`,
+          });
+        }
+
+        //Save Notification
+        notification.save();
+
+        //Send Real-time Notification
+        socket
+          .to("User:" + collabrator.user._id)
+          .emit("recieve-notification", { notification });
+
+        socket
+          .to("User:" + collabrator.user._id)
+          .emit("recieve-list", { list: updatedList });
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Removed Collabrator",
       });
     } catch (err) {
       console.log(err);
