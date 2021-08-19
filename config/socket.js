@@ -8,18 +8,45 @@ module.exports = (io) => {
 
     //Add Task
     socket.on("send-add-task", (taskInfo) => {
-      socket.broadcast.emit("recieve-add-task", taskInfo);
+      if (taskInfo.collabrators) {
+        taskInfo.collabrators.forEach((collabrator) => {
+          socket
+            .to("User:" + collabrator.user._id)
+            .emit("recieve-add-task", taskInfo);
+        });
+      } else {
+        socket.to("User:" + taskInfo.userId).emit("recieve-add-task", taskInfo);
+      }
     });
 
     //Delete Task
     socket.on("send-delete-task", (taskInfo) => {
-      socket.broadcast.emit("recieve-delete-task", taskInfo);
+      if (taskInfo.collabrators) {
+        taskInfo.collabrators.forEach((collabrator) => {
+          socket
+            .to("User:" + collabrator.user._id)
+            .emit("recieve-delete-task", taskInfo);
+        });
+      } else {
+        socket
+          .to("User:" + taskInfo.userId)
+          .emit("recieve-delete-task", taskInfo);
+      }
     });
 
-    // //Add Collabrator
-    // socket.on("send-add-collabrator", (listInfo) => {
-    //   console.log(listInfo);
-    //   //socket.broadcast.emit("recieve-delete-task", taskInfo);
-    // });
+    //Update Task
+    socket.on("send-update-task", (taskInfo) => {
+      if (taskInfo.collabrators) {
+        taskInfo.collabrators.forEach((collabrator) => {
+          socket
+            .to("User:" + collabrator.user._id)
+            .emit("recieve-update-task", taskInfo);
+        });
+      } else {
+        socket
+          .to("User:" + taskInfo.userId)
+          .emit("recieve-update-task", taskInfo);
+      }
+    });
   });
 };

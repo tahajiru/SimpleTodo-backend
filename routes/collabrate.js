@@ -47,22 +47,28 @@ router.post(
       // Socket
       const socket = req.app.get("socketio");
 
-      let collabratorId = collabrator._id;
+      let collabratorId;
 
       //If the user is not regitered
       if (!collabrator) {
-        const id = mongoose.Types.ObjectId();
+        // const id = mongoose.Types.ObjectId();
 
-        //Update Collabrator Id
-        collabratorId = id;
+        // //Update Collabrator Id
+        // collabratorId = id;
 
-        //Add an unregistered user
-        const unregisteredUser = new UnregisteredUser({
-          email: email,
-          userId: id,
+        // //Add an unregistered user
+        // const unregisteredUser = new UnregisteredUser({
+        //   email: email,
+        //   userId: id,
+        // });
+
+        // await unregisteredUser.save();
+        return res.status(200).json({
+          success: false,
+          message: "User not registered",
         });
-
-        await unregisteredUser.save();
+      } else {
+        collabratorId = collabrator._id;
       }
 
       if (!user._id.equals(collabratorId)) {
@@ -342,7 +348,7 @@ router.post(
 
       updatedList.collabrators.forEach((collabrator) => {
         let notification;
-        if (!user._id.equals(collabrator._id)) {
+        if (!user._id.equals(collabratorToBeRemoved._id)) {
           notification = new Notification({
             type: "text",
             sender: user._id,
