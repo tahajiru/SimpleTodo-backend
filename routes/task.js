@@ -12,11 +12,15 @@ router.post(
   async (req, res) => {
     try {
       const description = await sanitizeText(req.body.description);
+      const details = req.body.details
+        ? await sanitizeText(req.body.details)
+        : "";
 
       //Create a new task
       const task = new Task({
         description: description,
         completed: req.body.completed,
+        details: details,
       });
 
       await task.save();
@@ -65,7 +69,7 @@ router.get(
 
 //Update task description
 router.put(
-  "/updateDescription",
+  "/updateTask",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
@@ -74,6 +78,7 @@ router.put(
         { _id: req.body.taskId },
         {
           description: req.body.description,
+          details: req.body.details,
         }
       );
 
