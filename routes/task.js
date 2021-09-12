@@ -21,6 +21,8 @@ router.post(
         description: description,
         completed: req.body.completed,
         details: details,
+        dueDate: req.body.dueDate,
+        recurring: req.body.recurring,
       });
 
       await task.save();
@@ -79,6 +81,8 @@ router.put(
         {
           description: req.body.description,
           details: req.body.details,
+          dueDate: req.body.dueDate,
+          recurring: req.body.recurring,
         }
       );
 

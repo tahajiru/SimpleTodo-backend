@@ -38,7 +38,14 @@ router.get(
         populate: [
           {
             path: "tasks",
-            select: ["_id", "completed", "description", "details"],
+            select: [
+              "_id",
+              "completed",
+              "description",
+              "details",
+              "dueDate",
+              "recurring",
+            ],
           },
           {
             path: "collabrators",
