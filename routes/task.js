@@ -110,6 +110,8 @@ router.put(
         { _id: req.body.taskId },
         {
           completed: req.body.completed,
+          dueDate: req.body.dueDate,
+          recurring: req.body.recurring,
         }
       );
 
