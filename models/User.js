@@ -25,8 +25,7 @@ const userSchema = mongoose.Schema({
     },
   ],
   currentList: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "List",
+    type: String,
   },
 });
 
