@@ -45,6 +45,7 @@ router.get(
               "details",
               "dueDate",
               "recurring",
+              "reminder",
             ],
           },
           {

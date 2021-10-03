@@ -16,6 +16,10 @@ const TaskSchema = mongoose.Schema({
     },
     end: { type: Object },
   },
+  reminder: {
+    date: { type: Date, default: null },
+    jobId: { type: mongoose.Types.ObjectId, default: null },
+  },
 });
 
 module.exports = mongoose.model("Task", TaskSchema);

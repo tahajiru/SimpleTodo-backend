@@ -8,14 +8,15 @@ var server = require("http").createServer(app);
 
 const PORT = process.env.PORT || 5000;
 
+//Setup dotenv to access variables set in .env file
+dotenv.config();
+
 //Import Route
 const userRoute = require("./routes/user");
 const listRoute = require("./routes/list");
 const taskRoute = require("./routes/task");
 const collabrateRoute = require("./routes/collabrate");
 const notificationRoute = require("./routes/notification");
-//Setup dotenv to access variables set in .env file
-dotenv.config();
 
 //Connect to db
 require("./config/database");

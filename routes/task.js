@@ -3,7 +3,29 @@ const router = express.Router();
 const passport = require("passport");
 const Task = require("../models/Task");
 const List = require("../models/List");
+const User = require("../models/User");
+const jwtDecode = require("jwt-decode");
 const { sanitizeText } = require("../lib/utils");
+const agenda = require("../config/agenda");
+
+const attachUser = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ message: "Authentication invalid" });
+  }
+  const decodedToken = jwtDecode(token);
+
+  if (!decodedToken) {
+    return res.status(401).json({
+      message: "There was a problem authorizing the request",
+    });
+  } else {
+    req.userId = decodedToken.sub;
+    next();
+  }
+};
+
+router.use(attachUser);
 
 //Add Task
 router.post(
@@ -16,6 +38,19 @@ router.post(
         ? await sanitizeText(req.body.details)
         : "";
 
+      const user = await User.findOne({ _id: req.userId });
+
+      let job = null;
+
+      if (req.body.reminder) {
+        //Schedule a new job
+        await agenda.start();
+        job = await agenda.schedule(req.body.reminder, "send reminders", {
+          to: user.email,
+          task: req.body.description,
+        });
+      }
+
       //Create a new task
       const task = new Task({
         description: description,
@@ -23,6 +58,10 @@ router.post(
         details: details,
         dueDate: req.body.dueDate,
         recurring: req.body.recurring,
+        reminder: {
+          date: req.body.reminder,
+          jobId: req.body.reminder ? job.attrs._id : null,
+        },
       });
 
       await task.save();
@@ -69,12 +108,33 @@ router.get(
   }
 );
 
-//Update task description
+//Update task
 router.put(
   "/updateTask",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
+      const task = await Task.findOne({ _id: req.body.taskId });
+
+      //Update the reminder
+
+      if (task.reminder.jobId) {
+        //If jobId exists, cancel it
+        await agenda.cancel({ _id: task.reminder.jobId });
+      }
+
+      const user = await User.findOne({ _id: req.userId });
+
+      let job = null;
+      if (req.body.reminder) {
+        //Schedule a new job
+        await agenda.start();
+        job = await agenda.schedule(req.body.reminder, "send reminders", {
+          to: user.email,
+          task: req.body.description,
+        });
+      }
+
       //Update task description
       await Task.findOneAndUpdate(
         { _id: req.body.taskId },
@@ -83,6 +143,10 @@ router.put(
           details: req.body.details,
           dueDate: req.body.dueDate,
           recurring: req.body.recurring,
+          reminder: {
+            date: req.body.reminder,
+            jobId: req.body.reminder ? job.attrs._id : null,
+          },
         }
       );
 
@@ -91,6 +155,7 @@ router.put(
         message: "Task updated",
       });
     } catch (err) {
+      console.log(err);
       res.status(500).json({
         success: false,
         message: "Something went wrong. Please try again.",
