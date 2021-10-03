@@ -70,4 +70,32 @@ router.post(
   }
 );
 
+//Update notification
+router.post(
+  "/update",
+  passport.authenticate("jwt", { session: false }),
+  async (req, res) => {
+    try {
+      await Notification.findOneAndUpdate(
+        {
+          _id: req.body.notificationId,
+        },
+        {
+          $push: { readBy: { _id: req.userId } },
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Notification Deleted",
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Something went wrong. Please try again.",
+      });
+    }
+  }
+);
+
 module.exports = router;
