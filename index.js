@@ -17,6 +17,7 @@ const listRoute = require("./routes/list");
 const taskRoute = require("./routes/task");
 const collabrateRoute = require("./routes/collabrate");
 const notificationRoute = require("./routes/notification");
+const paymentRoute = require("./routes/payment");
 
 //Connect to db
 require("./config/database");
@@ -58,5 +59,7 @@ app.use("/list", listRoute);
 app.use("/task", taskRoute);
 app.use("/collabrate", collabrateRoute);
 app.use("/notification", notificationRoute);
+app.use("/payment", paymentRoute);
+
 //HTTP Server
 server.listen(PORT, () => console.log(`Server is up on port ${PORT}.`));

@@ -241,7 +241,7 @@ router.post("/resetPassword", async (req, res) => {
       message: "Password reset successful",
     });
   } catch (e) {
-    return res.status(200).json({
+    return res.status(400).json({
       success: true,
       message: "Something went wrong. Please try again.",
     });
@@ -255,5 +255,45 @@ router.get("/csrf-token", (req, res) => {
     csrfToken: req.csrfToken(),
   });
 });
+
+const attachUser = (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ message: "Authentication invalid" });
+  }
+  const decodedToken = jwtDecode(token);
+
+  if (!decodedToken) {
+    return res.status(401).json({
+      message: "There was a problem authorizing the request",
+    });
+  } else {
+    req.userId = decodedToken.sub;
+    next();
+  }
+};
+
+router.use(attachUser);
+
+
+router.get("/paymentStatus", async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await User.findOne({ _id: userId })
+
+    return res.status(200).json({
+      success: true,
+      paymentStatus: user.payment.status,
+    });
+
+  } catch (error) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
+  }
+})
 
 module.exports = router;

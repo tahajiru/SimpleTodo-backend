@@ -27,6 +27,11 @@ const userSchema = mongoose.Schema({
   currentList: {
     type: String,
   },
+  payment: {
+    customerId: { type: String, default: null },
+    subscriptionId: { type: String, default: null },
+    status: { type: String }
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);
