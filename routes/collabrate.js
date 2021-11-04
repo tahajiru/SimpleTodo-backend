@@ -96,15 +96,27 @@ router.post(
       });
 
       //Fetch updated list
-      const updatedList = await List.findOne({ _id: req.body.listId }).populate(
+      const updatedList = await List.findOne({ _id: req.body.listId }).populate([
+        {
+          path: "tasks",
+          select: [
+            "_id",
+            "completed",
+            "description",
+            "details",
+            "dueDate",
+            "recurring",
+            "reminder",
+          ],
+        },
         {
           path: "collabrators",
           populate: {
             path: "user",
             select: ["firstName", "lastName", "email"],
           },
-        }
-      );
+        },
+      ]);
 
       //Send updated list to all collabrators
       updatedList.collabrators.forEach((collabrator) => {
@@ -167,7 +179,15 @@ router.post(
         [
           {
             path: "tasks",
-            select: ["_id", "completed", "description"],
+            select: [
+              "_id",
+              "completed",
+              "description",
+              "details",
+              "dueDate",
+              "recurring",
+              "reminder",
+            ],
           },
           {
             path: "collabrators",
@@ -267,13 +287,27 @@ router.post(
       );
 
       const updatedList = await List.findOne({ _id: req.body.listId }).populate(
-        {
-          path: "collabrators",
-          populate: {
-            path: "user",
-            select: ["firstName", "lastName", "email"],
+        [
+          {
+            path: "tasks",
+            select: [
+              "_id",
+              "completed",
+              "description",
+              "details",
+              "dueDate",
+              "recurring",
+              "reminder",
+            ],
           },
-        }
+          {
+            path: "collabrators",
+            populate: {
+              path: "user",
+              select: ["firstName", "lastName", "email"],
+            },
+          },
+        ]
       );
 
       //Send updated list to all collabrators
@@ -337,13 +371,27 @@ router.post(
 
       //Send notification and updated list to all other collabrators
       const updatedList = await List.findOne({ _id: req.body.listId }).populate(
-        {
-          path: "collabrators",
-          populate: {
-            path: "user",
-            select: ["firstName", "lastName", "email"],
+        [
+          {
+            path: "tasks",
+            select: [
+              "_id",
+              "completed",
+              "description",
+              "details",
+              "dueDate",
+              "recurring",
+              "reminder",
+            ],
           },
-        }
+          {
+            path: "collabrators",
+            populate: {
+              path: "user",
+              select: ["firstName", "lastName", "email"],
+            },
+          },
+        ]
       );
 
       updatedList.collabrators.forEach((collabrator) => {
