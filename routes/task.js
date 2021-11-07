@@ -177,6 +177,7 @@ router.put(
           completed: req.body.completed,
           dueDate: req.body.dueDate,
           recurring: req.body.recurring,
+          completionDate: req.body.completed ? new Date() : null
         }
       );
 

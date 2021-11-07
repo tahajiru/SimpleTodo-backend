@@ -58,6 +58,10 @@ router.get(
         ],
       });
 
+      //Update the last login
+      await user.updateOne({ lastLogin: Date.now() })
+
+
       res.status(200).json({
         success: true,
         lists: user.lists,

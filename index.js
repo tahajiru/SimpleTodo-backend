@@ -19,6 +19,9 @@ const collabrateRoute = require("./routes/collabrate");
 const notificationRoute = require("./routes/notification");
 const paymentRoute = require("./routes/payment");
 
+//Cron Job
+require("./cron-jobs/utils");
+
 //Connect to db
 require("./config/database");
 

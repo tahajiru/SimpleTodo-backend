@@ -11,11 +11,10 @@ let agenda = new Agenda({
 agenda.define("send reminders", async (job) => {
   const { to, task } = job.attrs.data;
 
-  const emailSubject = "Reminder from SimpleTodo";
+  const emailSubject = "Reminder from SimplyDone";
 
   const emailMessage = `
-  <h3>Reminder</h3>
-  <p>Task to be completed: ${task}</p> 
+  <p>Reminder for ${task}</p> 
   `;
 
   //Send mail
