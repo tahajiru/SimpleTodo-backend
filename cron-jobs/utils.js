@@ -16,9 +16,9 @@ async function cleanReminderJobs() {
         await client.connect();
 
         //Clean Reminder Jobs
-        const res = await client.db("SimpleTodoDatabase").collection("agendaJobs").deleteMany({ nextRunAt: null })
+        const res = await client.db("SimpleTodoDatabase").collection("agendaJobs").deleteMany({ $or: [{ nextRunAt: { $lt: new Date() } }, { nextRunAt: null }] })
 
-        console.log(`${res.deletedCount}`)
+        console.log(`No of agenda jobs deleted: ${res.deletedCount}`)
 
     } finally {
         // Ensures that the client will close when you finish/error

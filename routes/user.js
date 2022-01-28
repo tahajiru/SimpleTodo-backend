@@ -2,6 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+const agenda = require("../config/agenda");
+const { welcomeEmails } = require("../campaigns/welcome");
 
 const User = require("../models/User");
 const {
@@ -56,6 +58,21 @@ router.post("/register", async (req, res) => {
     password: hashedPassword,
   });
 
+  // Schedule Welcome email campaign
+  await agenda.start();
+
+  const emails = welcomeEmails(req.body.firstName);
+
+  emails.forEach(async (email) => {
+
+    await agenda.schedule(email.time, "send emails", {
+      to: user.email,
+      emailSubject: email.subject,
+      emailMessage: email.body,
+    });
+
+  });
+
   try {
     await user.save();
     res.status(200).json({
@@ -102,7 +119,7 @@ router.post("/login", async (req, res) => {
   }
 
   const tokenObject = issueJWT(user, process.env.JWT_SECRET_KEY);
-  decodedToken = jwtDecode(tokenObject.token);
+  const decodedToken = jwtDecode(tokenObject.token);
   const expiresAt = decodedToken.exp;
 
   res.cookie("token", tokenObject.token, {
@@ -288,7 +305,6 @@ router.get("/paymentStatus", async (req, res) => {
     });
 
   } catch (error) {
-    console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong. Please try again.",

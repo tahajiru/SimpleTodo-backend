@@ -1,5 +1,5 @@
 const Agenda = require("agenda");
-const { sendEmail } = require("../lib/utils");
+const { sendEmail, sendEmailFromOwner } = require("../lib/utils");
 
 let agenda = new Agenda({
   db: {
@@ -20,5 +20,13 @@ agenda.define("send reminders", async (job) => {
   //Send mail
   sendEmail(to, emailSubject, emailMessage);
 });
+
+agenda.define("send emails", async (job) => {
+  const { to, emailSubject, emailMessage } = job.attrs.data;
+
+  //Send mail
+  sendEmailFromOwner(to, emailSubject, emailMessage);
+});
+
 
 module.exports = agenda;
