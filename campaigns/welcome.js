@@ -35,7 +35,7 @@ function welcomeEmails(name) {
             subject: "Do you know about this feature?",
             body: `
             <p>
-                You can use markdown to your task more readable.
+                You can use markdown to make your task more readable.
                 <ul>
                     <li>To make it bold  - *Your Text Here*</li>
                     <li>To make it italics - _Your Text Here_</li>
